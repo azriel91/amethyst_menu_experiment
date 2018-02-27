@@ -98,6 +98,20 @@ impl amethyst::State for State {
         self.initialize_menu_items(world);
     }
 
+    fn on_stop(&mut self, world: &mut World) {
+        self.terminate_menu_items(world);
+        self.terminate_menu_event_channel(world);
+    }
+
+    // Need to explicitly hide and show the menu items during pause and resume
+    fn on_resume(&mut self, world: &mut World) {
+        self.initialize_menu_items(world);
+    }
+
+    fn on_pause(&mut self, world: &mut World) {
+        self.terminate_menu_items(world);
+    }
+
     fn update(&mut self, world: &mut World) -> Trans {
         let menu_event_channel = world.read_resource::<EventChannel<MenuEvent<main_menu::Index>>>();
 
@@ -115,11 +129,6 @@ impl amethyst::State for State {
             },
             None => Trans::None,
         }
-    }
-
-    fn on_stop(&mut self, world: &mut World) {
-        self.terminate_menu_items(world);
-        self.terminate_menu_event_channel(world);
     }
 }
 

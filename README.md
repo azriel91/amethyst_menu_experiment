@@ -4,6 +4,6 @@ Little experiment repository to create an application with a menu using [Amethys
 
 Run with `cargo run`.
 
-Clicking **Start Game** overlays a new `State`. I actually thought this should completely hide the menu underneath it.
+Clicking **Start Game** overlays a new `State`.
 
 Clicking **Exit** exits the program.
