@@ -4,6 +4,7 @@ extern crate amethyst;
 #[macro_use]
 extern crate log;
 
+mod demo_setup;
 mod loading;
 mod main_menu;
 mod menu;
