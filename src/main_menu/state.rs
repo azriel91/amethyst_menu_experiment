@@ -5,7 +5,6 @@ use amethyst::{
 
 use main_menu;
 use menu::{MenuEvent, MenuItem};
-use other;
 
 const FONT_SIZE: f32 = 25.;
 
@@ -125,10 +124,7 @@ impl<'a, 'b> amethyst::State<GameData<'a, 'b>> for State {
         let mut storage_iterator = menu_event_channel.read(&mut reader_id);
         match storage_iterator.next() {
             Some(event) => match *event {
-                MenuEvent::Select(main_menu::Index::StartGame) => {
-                    Trans::Push(Box::new(other::State::new()))
-                }
-                MenuEvent::Select(main_menu::Index::Exit) => Trans::Quit,
+                MenuEvent::Select(index) => index.trans(),
                 MenuEvent::Close => Trans::Quit,
             },
             None => Trans::None,
