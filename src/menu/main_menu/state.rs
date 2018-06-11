@@ -1,9 +1,7 @@
-use amethyst;
-use amethyst::prelude::*;
-use amethyst::renderer::ScreenDimensions;
-use amethyst::ui::{FontHandle, MouseReactive, UiResize, UiText, UiTransform};
-use amethyst::shrev::{EventChannel, ReaderId};
-use amethyst::ecs::Entity;
+use amethyst::{
+    self, ecs::Entity, prelude::*, renderer::ScreenDimensions, shrev::{EventChannel, ReaderId},
+    ui::{Anchor, FontHandle, MouseReactive, UiText, UiTransform},
+};
 
 use menu::main_menu;
 use menu::{MenuEvent, MenuItem};
@@ -44,26 +42,29 @@ impl State {
     fn initialize_menu_items(&mut self, world: &mut World) {
         let font_bold = read_font(world);
 
+        let screen_w = {
+            let dim = world.read_resource::<ScreenDimensions>();
+            dim.width()
+        };
+        let text_w = screen_w / 3.;
+        let text_h = 50.;
+
         let mut menu_items = vec![main_menu::Index::StartGame, main_menu::Index::Exit];
+        let total_items = menu_items.len() as f32;
         menu_items
             .drain(..)
             .enumerate()
             .for_each(|(index, menu_item)| {
-                let mut text_transform = UiTransform::new(
+                let text_transform = UiTransform::new(
                     menu_item.title().to_string(),
-                    20.,
-                    index as f32 * 50. + 20.,
+                    Anchor::Middle,
+                    0.,
+                    (index as f32 * text_h) - (total_items * text_h / 2.),
                     1.,
-                    400.,
-                    100.,
+                    text_w,
+                    text_h,
                     0,
                 );
-                let ui_text_size_fn = |_transform: &mut UiTransform, (_width, _height)| {};
-
-                {
-                    let dim = world.read_resource::<ScreenDimensions>();
-                    ui_text_size_fn(&mut text_transform, (dim.width(), dim.height()));
-                }
 
                 let entity = world
                     .create_entity()
@@ -74,7 +75,6 @@ impl State {
                         [1., 1., 1., 1.],
                         FONT_SIZE,
                     ))
-                    .with(UiResize(Box::new(ui_text_size_fn)))
                     .with(MouseReactive)
                     .with(MenuItem { index: menu_item })
                     .build();
@@ -92,30 +92,34 @@ impl State {
     }
 }
 
-impl amethyst::State for State {
-    fn on_start(&mut self, world: &mut World) {
-        self.initialize_menu_event_channel(world);
-        self.initialize_menu_items(world);
+impl<'a, 'b> amethyst::State<GameData<'a, 'b>> for State {
+    fn on_start(&mut self, mut data: StateData<GameData>) {
+        self.initialize_menu_event_channel(&mut data.world);
+        self.initialize_menu_items(&mut data.world);
     }
 
-    fn on_stop(&mut self, world: &mut World) {
-        self.terminate_menu_items(world);
-        self.terminate_menu_event_channel(world);
+    fn on_stop(&mut self, mut data: StateData<GameData>) {
+        self.terminate_menu_items(&mut data.world);
+        self.terminate_menu_event_channel(&mut data.world);
     }
 
     // Need to explicitly hide and show the menu items during pause and resume
-    fn on_resume(&mut self, world: &mut World) {
-        self.initialize_menu_items(world);
+    fn on_resume(&mut self, mut data: StateData<GameData>) {
+        self.initialize_menu_items(&mut data.world);
     }
 
-    fn on_pause(&mut self, world: &mut World) {
-        self.terminate_menu_items(world);
+    fn on_pause(&mut self, mut data: StateData<GameData>) {
+        self.terminate_menu_items(&mut data.world);
     }
 
-    fn update(&mut self, world: &mut World) -> Trans {
-        let menu_event_channel = world.read_resource::<EventChannel<MenuEvent<main_menu::Index>>>();
+    fn update(&mut self, data: StateData<GameData>) -> Trans<GameData<'a, 'b>> {
+        data.data.update(&data.world);
+        let menu_event_channel = &data
+            .world
+            .read_resource::<EventChannel<MenuEvent<main_menu::Index>>>();
 
-        let mut reader_id = self.menu_event_reader
+        let mut reader_id = self
+            .menu_event_reader
             .as_mut()
             .expect("Expected menu_event_reader to be set");
         let mut storage_iterator = menu_event_channel.read(&mut reader_id);
