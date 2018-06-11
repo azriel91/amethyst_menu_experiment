@@ -3,7 +3,7 @@ use amethyst::{
     ui::{Anchor, FontHandle, MouseReactive, UiText, UiTransform},
 };
 
-use menu::main_menu;
+use main_menu;
 use menu::{MenuEvent, MenuItem};
 use other;
 

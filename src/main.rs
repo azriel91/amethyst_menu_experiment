@@ -5,6 +5,7 @@ extern crate amethyst;
 extern crate log;
 
 mod loading;
+mod main_menu;
 mod menu;
 mod other;
 
@@ -15,7 +16,7 @@ use amethyst::{
     renderer::{DisplayConfig, Pipeline, RenderBundle, Stage}, ui::{DrawUi, UiBundle},
 };
 
-use menu::{main_menu, MenuBundle};
+use main_menu::MainMenuBundle;
 
 fn run() -> Result<(), amethyst::Error> {
     let display_config = DisplayConfig::load("resources/display_config.ron");
@@ -33,7 +34,7 @@ fn run() -> Result<(), amethyst::Error> {
         .with_bundle(InputBundle::<String, String>::new())?
         .with_bundle(UiBundle::<String, String>::new())?
         .with_bundle(RenderBundle::new(pipe, Some(display_config)))?
-        .with_bundle(MenuBundle)?;
+        .with_bundle(MainMenuBundle)?;
     let mut app = Application::new("assets", loading_state, game_data)?;
 
     app.run();

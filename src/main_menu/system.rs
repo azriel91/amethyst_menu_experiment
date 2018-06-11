@@ -3,9 +3,8 @@ use amethyst::{
     shrev::{EventChannel, ReaderId}, ui::{UiEvent, UiEventType},
 };
 
-use menu::event::MenuEvent;
-use menu::main_menu;
-use menu::menu_item::MenuItem;
+use main_menu;
+use menu::{MenuEvent, MenuItem};
 
 /// System that processes `UiEvent`s and generates `MenuEvent`s.
 #[derive(Debug, Default)]
